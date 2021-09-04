@@ -1,7 +1,7 @@
 # Readme
 
 Turing Machine in Rust. Step by step.
-Port of [ivanmoreau/turinghaskell](https://github.com/ivanmoreau/turinghaskell)
+Port of [ivanmoreau/turinghaskell](https://github.com/ivanmoreau/turinghaskell) (it's more readable).
 
 ## Usage/Example
 
