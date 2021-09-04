@@ -5,25 +5,29 @@ enum Direction {
     R,
     S
 }
-type State = i32;
-type Symbol = char;
-type Smt = (State, Symbol, Direction);
-type Tape = Vec<Symbol>;
+type State     = i32;
+type Symbol    = char;
+type Smt       = (State, Symbol, Direction);
+type Tape      = Vec<Symbol>;
 type TapeParts = (Tape, Symbol, Tape);
 struct Machine {
-    init_state: State,
-    function: fn((State, Symbol)) -> Smt,
+    init_state  : State,
+    function    : fn((State, Symbol)) -> Smt,
     accept_state: State
 }
 struct MacState {
     state: State,
-    tape: TapeParts
+    tape : TapeParts
 }
 
 impl std::fmt::Debug for MacState {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
     let s: Vec<char> = format!("{}", self.state).chars().collect();
-    let v = add(self.tape.0.clone(), add(vec![' ','q','_'],add(s,add(vec![' ', self.tape.1], self.tape.2.clone()))) );
+    let v = add(self.tape.0.clone(),
+        add(vec![' ','q','_'],
+            add(s,
+                add(vec![' ', self.tape.1],
+                    self.tape.2.clone()))));
     let r: String = v.into_iter().collect();
     write!(f, "{}\n", r)
     }
@@ -32,20 +36,27 @@ impl std::fmt::Debug for MacState {
 fn move_tape((x,y,z): TapeParts, direction: Direction) -> TapeParts {
     use Direction::*;
     match (&x[..], y, &z[..], direction) {
-        ([], _, _, L) => (vec![], '_', add(vec![y], z)),
-        (_, _, [], R) => (add(x, vec![y]), '_', vec![]),
-        (_, _, _, L) => (init(x.clone()), last(x), add(vec![y], z)),
-        (_, _, _, R) => (add(x, vec![y]), head(z.clone()), tail(z)),
-        (_, _, _, S) => (x, y, z)
+        ([], _, _ , L) => (vec![], '_', add(vec![y], z)),
+        (_ , _, [], R) => (add(x, vec![y]), '_', vec![]),
+        (_ , _, _ , L) => (init(x.clone()), last(x), add(vec![y], z)),
+        (_ , _, _ , R) => (add(x, vec![y]), head(z.clone()), tail(z)),
+        (_ , _, _ , S) => (x, y, z)
     }
 }
 
-fn step(mac: Machine, (a, b, c): TapeParts, stt: Vec<MacState>) -> Vec<MacState> {
+fn step(mac: Machine, (a, b, c): TapeParts, 
+        stt: Vec<MacState>) -> Vec<MacState> {
     if mac.init_state == mac.accept_state {
-        add(stt, vec![MacState {state : mac.init_state, tape : (a, b, c)}])
+        add(stt, vec![MacState {state : mac.init_state, 
+            tape : (a, b, c)}])
     } else {
         let (x, y, z) = (mac.function)((mac.init_state, b));
-        step(Machine { init_state: x, function: mac.function, accept_state: mac.accept_state }, move_tape((a.clone(), y, c.clone()), z), add(stt, vec![MacState {state : mac.init_state, tape : (a, b, c)}]))
+        step(Machine { init_state: x,
+                           function  : mac.function, 
+                           accept_state: mac.accept_state },
+                 move_tape((a.clone(), y, c.clone()), z), 
+        add(stt, vec![MacState {state : mac.init_state, 
+            tape : (a, b, c)}]))
     }
 }
 
@@ -93,6 +104,10 @@ fn test_machinefn((st, sy): (i32, char)) -> Smt {
 
 // Side Effects
 fn main() {
-    let val = run(test_machine(), vec!['1','1','1','1','1','1','1','1','0','1','1','1','1','1','1','1','1']);
+    let val = 
+    run(
+        test_machine(),
+        vec!['1','1','1','1','1','1','1','1',
+        '0','1','1','1','1','1','1','1','1']);
     println!("{:?}", val);
 }
